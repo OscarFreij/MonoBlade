@@ -61,13 +61,13 @@ namespace MonoBlade
                  * Object Colison logic
                  */
 
-                float DeltaX = (this.Position.X) - (gameObject_2.ColiderComponent.Position.X) + (this.CenterPoint.X - gameObject_2.ColiderComponent.CenterPoint.X);
-                float DeltaY = (this.Position.Y) - (gameObject_2.ColiderComponent.Position.Y) + (this.CenterPoint.Y - gameObject_2.ColiderComponent.CenterPoint.Y);
+                float DeltaX = (this.Position.X) - (gameObject_2.ColliderComponent.Position.X) + (this.CenterPoint.X - gameObject_2.ColliderComponent.CenterPoint.X);
+                float DeltaY = (this.Position.Y) - (gameObject_2.ColliderComponent.Position.Y) + (this.CenterPoint.Y - gameObject_2.ColliderComponent.CenterPoint.Y);
 
-                float LeftDeltaX = (this.Position.X) - (gameObject_2.ColiderComponent.Position.X + (gameObject_2.ColiderComponent.CenterPoint.X) * 2);
-                float RightDeltaX = -((this.Position.X + this.CenterPoint.X * 2) - (gameObject_2.ColiderComponent.Position.X));
-                float UpDeltaY = (this.Position.Y) - (gameObject_2.ColiderComponent.Position.Y + (gameObject_2.ColiderComponent.CenterPoint.Y) * 2);
-                float DownDeltaY = -((this.Position.Y + this.CenterPoint.Y * 2) - (gameObject_2.ColiderComponent.Position.Y));
+                float LeftDeltaX = (this.Position.X) - (gameObject_2.ColliderComponent.Position.X + (gameObject_2.ColliderComponent.CenterPoint.X) * 2);
+                float RightDeltaX = -((this.Position.X + this.CenterPoint.X * 2) - (gameObject_2.ColliderComponent.Position.X));
+                float UpDeltaY = (this.Position.Y) - (gameObject_2.ColliderComponent.Position.Y + (gameObject_2.ColliderComponent.CenterPoint.Y) * 2);
+                float DownDeltaY = -((this.Position.Y + this.CenterPoint.Y * 2) - (gameObject_2.ColliderComponent.Position.Y));
 
                 float FinalDeltaX = 0;
                 float FinalDeltaY = 0;
@@ -103,7 +103,7 @@ namespace MonoBlade
 
                 Console.WriteLine(FinalDelta);
 
-                if (this.ColiderRectangle.Intersects(gameObject_2.ColiderComponent.SkinColiderRectangle))
+                if (this.ColiderRectangle.Intersects(gameObject_2.ColliderComponent.SkinColliderRectangle))
                 {
                     // X-Axis
                     if (FinalDeltaX > FinalDeltaY)
@@ -145,7 +145,7 @@ namespace MonoBlade
                 }
 
 
-                if (this.ColiderRectangle.Intersects(gameObject_2.ColiderComponent.ColiderRectangle))
+                if (this.ColiderRectangle.Intersects(gameObject_2.ColliderComponent.ColliderRectangle))
                 {
                     //ActualSpeed *= 0.1f;
 
