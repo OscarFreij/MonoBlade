@@ -63,6 +63,7 @@ namespace MonoBlade
                 if (ColiderComponent != null)
                 {
                     Game.spriteBatch.Draw(this.ColiderComponent.ColiderTexture, this.ColiderComponent.ColiderRectangle, Color.White);
+                    Game.spriteBatch.Draw(this.ColiderComponent.CenterTexture, this.ColiderComponent.CenterPointRectangle, Color.White);
                 }
             }
         }
@@ -215,8 +216,10 @@ namespace MonoBlade
 
                 public bool IsTrigger { get; private set; }
                 public Texture2D ColiderTexture { get; private set; }
+                public Texture2D CenterTexture { get; private set; }
                 public Rectangle ColiderRectangle { get; private set; }
                 public Rectangle SkinColiderRectangle { get; private set; }
+                public Rectangle CenterPointRectangle { get; private set; }
 
                 public List<int> Layers { get; private set; } = new List<int>();
                 private GameObject ParrentObject { get; set; }
@@ -238,6 +241,7 @@ namespace MonoBlade
                     this.Position = ParrentObject.PositionComponent.Position - this.CenterPoint;
                     this.ColiderRectangle = new Rectangle(Convert.ToInt32(this.Position.X), Convert.ToInt32(this.Position.Y), Convert.ToInt32(this.Dimensions.X), Convert.ToInt32(this.Dimensions.Y));
                     this.SkinColiderRectangle = new Rectangle(Convert.ToInt32(this.Position.X - 1), Convert.ToInt32(this.Position.Y - 1), Convert.ToInt32(this.Dimensions.X + 2), Convert.ToInt32(this.Dimensions.Y + 2));
+                    this.CenterPointRectangle = new Rectangle(Convert.ToInt32(this.Position.X - this.CenterPoint.X), Convert.ToInt32(this.Position.Y - this.CenterPoint.Y), 5, 5);
                 }
 
                 private void GenerateColiderTexture()
@@ -248,6 +252,12 @@ namespace MonoBlade
                     Color[] data = new Color[Convert.ToInt32(this.Dimensions.X) * Convert.ToInt32(this.Dimensions.Y)];
                     for (int i = 0; i < data.Length; ++i) data[i] = new Color(150, 0, 0, 150);
                     ColiderTexture.SetData(data);
+
+                    this.CenterTexture = new Texture2D(ParrentObject.Game.GraphicsDevice, 5, 5);
+
+                    Color[] data2 = new Color[5 * 5];
+                    for (int i = 0; i < data2.Length; ++i) data2[i] = new Color(0, 0, 150, 255);
+                    CenterTexture.SetData(data2);
                 }
 
                 public void CheckColision(GameObject gameObject_2)
