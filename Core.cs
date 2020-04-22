@@ -36,7 +36,9 @@ namespace MonoBlade
 
                 PositionComponent = new Components.PositionComponent(X, Y, AcceptInput);
 
-                ColliderComponent = new Components.ColliderComponent(new Vector2(100,100),new Vector2(100,100),false,this);
+                ColliderComponent = new Components.ColliderComponent(new Vector2(100,100),new Vector2(0,0),false,this);
+
+                SpriteComponent = new Components.SpriteComponent(this);
 
             }
 
@@ -189,6 +191,11 @@ namespace MonoBlade
                 {
 
                 }
+
+                public void Tick()
+                {
+
+                }
             }
 
             public class SpriteComponent
@@ -196,14 +203,17 @@ namespace MonoBlade
                 public Texture2D Sprite { get; private set; }
                 public Vector2 OriginPoint { get; private set; }
                 public List<int> Layers { get; private set; } = new List<int>();
-                public SpriteComponent()
+                public GameObject ParrentObject { get; private set; }
+                public SpriteComponent(GameObject ParrentObject)
                 {
-
+                    this.ParrentObject = ParrentObject;
+                    Sprite = this.ParrentObject.Game.Content.Load<Texture2D>("random1");
+                    this.OriginPoint = new Vector2(Sprite.Width / 2, Sprite.Height / 2);
                 }
 
                 public void Draw()
                 {
-
+                    this.ParrentObject.Game.spriteBatch.Draw(Sprite, this.ParrentObject.PositionComponent.Position - OriginPoint, Color.White);
                 }
             }
 
@@ -227,7 +237,8 @@ namespace MonoBlade
                 {
                     this.Dimensions = Dimensions;
                     this.Offset = Offset;
-                    this.CenterPoint = new Vector2(Convert.ToInt32((Dimensions.X / 2) - Offset.X), Convert.ToInt32((Dimensions.Y / 2) - Offset.Y));
+                    this.ParrentObject = ParrentObject;
+                    this.CenterPoint = new Vector2(Convert.ToInt32((this.ParrentObject.PositionComponent.Position.X + this.Dimensions.X / 2) - this.Offset.X), Convert.ToInt32((this.ParrentObject.PositionComponent.Position.Y + this.Dimensions.Y / 2) - this.Offset.Y));
                     this.IsTrigger = ColiderIsTrigger;
 
                     this.ParrentObject = ParrentObject;
