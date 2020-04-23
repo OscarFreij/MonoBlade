@@ -33,8 +33,8 @@ namespace MonoBlade
             // TODO: Add your initialization logic here
             GameObjects = new List<GameObject>();
 
-            GameObjects.Add(new Core.GameObject(0, "RE0", this, 0, 0, true));
-            GameObjects.Add(new Core.GameObject(1, "RE1", this, 300, 200, false));
+            GameObjects.Add(new Core.GameObject(0, "Player", this, 0, 0, true));
+            GameObjects.Add(new Core.GameObject(1, "RE1", this, 100, 100, false));
             base.Initialize();
         }
 

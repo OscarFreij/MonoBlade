@@ -238,7 +238,31 @@ namespace MonoBlade
                     this.Dimensions = Dimensions;
                     this.Offset = Offset;
                     this.ParrentObject = ParrentObject;
-                    this.CenterPoint = new Vector2(Convert.ToInt32((this.ParrentObject.PositionComponent.Position.X + this.Dimensions.X / 2) - this.Offset.X), Convert.ToInt32((this.ParrentObject.PositionComponent.Position.Y + this.Dimensions.Y / 2) - this.Offset.Y));
+
+                    float X = 0;
+                    float Y = 0;
+
+                    if (this.ParrentObject.PositionComponent.Position.X > 0)
+                    {
+                        X = this.ParrentObject.PositionComponent.Position.X - (this.Dimensions.X / 2);
+                    }
+                    else
+                    {
+                        X = this.ParrentObject.PositionComponent.Position.X + (this.Dimensions.X / 2);
+                    }
+
+                    if (this.ParrentObject.PositionComponent.Position.Y > 0)
+                    {
+                        Y = this.ParrentObject.PositionComponent.Position.Y - (this.Dimensions.Y / 2);
+                    }
+                    else
+                    {
+                        Y = this.ParrentObject.PositionComponent.Position.Y + (this.Dimensions.Y / 2);
+                    }
+
+                    this.CenterPoint = new Vector2(Convert.ToInt32(X), Convert.ToInt32(Y));
+                    
+                    this.Position = new Vector2(this.ParrentObject.PositionComponent.Position.X, this.ParrentObject.PositionComponent.Position.Y);
                     this.IsTrigger = ColiderIsTrigger;
 
                     this.ParrentObject = ParrentObject;
@@ -252,7 +276,7 @@ namespace MonoBlade
                     this.Position = ParrentObject.PositionComponent.Position - this.CenterPoint;
                     this.ColliderRectangle = new Rectangle(Convert.ToInt32(this.Position.X), Convert.ToInt32(this.Position.Y), Convert.ToInt32(this.Dimensions.X), Convert.ToInt32(this.Dimensions.Y));
                     this.SkinColliderRectangle = new Rectangle(Convert.ToInt32(this.Position.X - 1), Convert.ToInt32(this.Position.Y - 1), Convert.ToInt32(this.Dimensions.X + 2), Convert.ToInt32(this.Dimensions.Y + 2));
-                    this.CenterPointRectangle = new Rectangle(Convert.ToInt32(this.Position.X - this.CenterPoint.X), Convert.ToInt32(this.Position.Y - this.CenterPoint.Y), 5, 5);
+                    this.CenterPointRectangle = new Rectangle(Convert.ToInt32(this.Position.X + this.CenterPoint.X-8), Convert.ToInt32(this.Position.Y + this.CenterPoint.Y-8), 16, 16);
                 }
 
                 private void GenerateColliderTexture()
@@ -267,7 +291,7 @@ namespace MonoBlade
                     this.CenterTexture = new Texture2D(ParrentObject.Game.GraphicsDevice, 5, 5);
 
                     Color[] data2 = new Color[5 * 5];
-                    for (int i = 0; i < data2.Length; ++i) data2[i] = new Color(0, 0, 150, 255);
+                    for (int i = 0; i < data2.Length; ++i) data2[i] = new Color(0, 0, 150, 50);
                     CenterTexture.SetData(data2);
                 }
 
@@ -277,9 +301,9 @@ namespace MonoBlade
                      * Object Colison logic
                      */
 
-                    if (this.ColliderRectangle.Intersects(gameObject_2.ColliderComponent.SkinColliderRectangle))
+                    if (this.ColliderRectangle.Intersects(gameObject_2.ColliderComponent.SkinColliderRectangle) && !this.IsTrigger && !gameObject_2.ColliderComponent.IsTrigger)
                     {
-                        
+                        Console.WriteLine($"Collision Detected betweene {this.ParrentObject.Name} and {gameObject_2.Name}");
                     }
                 }
 

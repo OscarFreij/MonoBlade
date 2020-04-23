@@ -4,7 +4,7 @@
   <Platform>DesktopGL</Platform>
   <Config />
   <SourceFiles>
-    <File>Z:/Documents/git/MonoBlade/Content/random1.png</File>
+    <File>C:/Users/otg02/source/repos/MonoBlade/Content/random1.png</File>
   </SourceFiles>
   <DestFiles>
     <File xsi:nil="true" />
