@@ -16,6 +16,7 @@ namespace MonoBlade
 
         public List<GameObject> GameObjects;
 
+        public Texture2D mouse;
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -30,11 +31,13 @@ namespace MonoBlade
         /// </summary>
         protected override void Initialize()
         {
+            GraphicsDevice.BlendState = BlendState.AlphaBlend;
             // TODO: Add your initialization logic here
             GameObjects = new List<GameObject>();
 
-            GameObjects.Add(new Core.GameObject(0, "Player", this, 0, 0, true));
-            GameObjects.Add(new Core.GameObject(1, "RE1", this, 100, 100, false));
+            GameObjects.Add(new Core.GameObject(0, "Player", this, 50, 50, true));
+            GameObjects.Add(new Core.GameObject(1, "RE1", this, 200, 200, false));
+            GameObjects.Add(new Core.GameObject(2, "RE2", this, 600, 400, false));
             base.Initialize();
         }
 
@@ -46,6 +49,8 @@ namespace MonoBlade
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
+
+            mouse = Content.Load<Texture2D>("sprites/base/Mouse_Simple");
             
 
             // TODO: use this.Content to load your game content here
@@ -88,14 +93,14 @@ namespace MonoBlade
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
             // TODO: Add your drawing code here
-            spriteBatch.Begin();
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend);
 
 
             for (int i = 0; i < GameObjects.Count; i++)
             {
                 GameObjects[i].Draw();
             }
-
+            spriteBatch.Draw(mouse, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), Color.White);
             spriteBatch.End();
 
             base.Draw(gameTime);

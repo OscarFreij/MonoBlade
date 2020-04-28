@@ -64,6 +64,12 @@ namespace MonoBlade
 
                 if (ColliderComponent != null)
                 {
+                    Texture2D ColliderTexture = new Texture2D(Game.GraphicsDevice,Convert.ToInt32(this.ColliderComponent.Dimensions.X + 2), Convert.ToInt32(this.ColliderComponent.Dimensions.Y + 2));
+                    Color[] data = new Color[Convert.ToInt32(this.ColliderComponent.Dimensions.X + 2) * Convert.ToInt32(this.ColliderComponent.Dimensions.Y + 2)];
+                    for (int i = 0; i < data.Length; ++i) data[i] = new Color(0, 280, 0, 40);
+                    ColliderTexture.SetData(data);
+
+                    Game.spriteBatch.Draw(ColliderTexture, this.ColliderComponent.SkinColliderRectangle, Color.White);
                     Game.spriteBatch.Draw(this.ColliderComponent.ColliderTexture, this.ColliderComponent.ColliderRectangle, Color.White);
                     Game.spriteBatch.Draw(this.ColliderComponent.CenterTexture, this.ColliderComponent.CenterPointRectangle, Color.White);
                 }
@@ -115,7 +121,7 @@ namespace MonoBlade
                         this.ParrentObject.PositionComponent.EditAxis("Y", 0);
                     }
 
-
+                    
                     if (!this.ParrentObject.ColliderComponent.IsTrigger)
                     {
                         foreach (var item in this.ParrentObject.Game.GameObjects)
@@ -128,6 +134,7 @@ namespace MonoBlade
                         }
                     }
 
+                    //Console.WriteLine($"AXIS-X = {this.ParrentObject.PositionComponent.Axis.X} | AXIS-Y = {this.ParrentObject.PositionComponent.Axis.Y}");
 
                     if (Keyboard.GetState().IsKeyDown(Keys.LeftShift) || Keyboard.GetState().IsKeyDown(Keys.RightShift))
                     {
@@ -238,34 +245,11 @@ namespace MonoBlade
                     this.Dimensions = Dimensions;
                     this.Offset = Offset;
                     this.ParrentObject = ParrentObject;
-
-                    float X = 0;
-                    float Y = 0;
-
-                    if (this.ParrentObject.PositionComponent.Position.X > 0)
-                    {
-                        X = this.ParrentObject.PositionComponent.Position.X - (this.Dimensions.X / 2);
-                    }
-                    else
-                    {
-                        X = this.ParrentObject.PositionComponent.Position.X + (this.Dimensions.X / 2);
-                    }
-
-                    if (this.ParrentObject.PositionComponent.Position.Y > 0)
-                    {
-                        Y = this.ParrentObject.PositionComponent.Position.Y - (this.Dimensions.Y / 2);
-                    }
-                    else
-                    {
-                        Y = this.ParrentObject.PositionComponent.Position.Y + (this.Dimensions.Y / 2);
-                    }
-
-                    this.CenterPoint = new Vector2(Convert.ToInt32(X), Convert.ToInt32(Y));
-                    
-                    this.Position = new Vector2(this.ParrentObject.PositionComponent.Position.X, this.ParrentObject.PositionComponent.Position.Y);
                     this.IsTrigger = ColiderIsTrigger;
+                    this.Position = ParrentObject.PositionComponent.Position;
+                    Console.WriteLine(this.Dimensions / 2);
+                    this.CenterPoint = (this.Dimensions / 2);
 
-                    this.ParrentObject = ParrentObject;
 
                     GenerateColliderTexture();
                     RecalculateColliderPos();
@@ -273,11 +257,12 @@ namespace MonoBlade
 
                 private void RecalculateColliderPos()
                 {
-                    this.Position = ParrentObject.PositionComponent.Position - this.CenterPoint;
-                    this.ColliderRectangle = new Rectangle(Convert.ToInt32(this.Position.X), Convert.ToInt32(this.Position.Y), Convert.ToInt32(this.Dimensions.X), Convert.ToInt32(this.Dimensions.Y));
-                    this.SkinColliderRectangle = new Rectangle(Convert.ToInt32(this.Position.X - 1), Convert.ToInt32(this.Position.Y - 1), Convert.ToInt32(this.Dimensions.X + 2), Convert.ToInt32(this.Dimensions.Y + 2));
-                    this.CenterPointRectangle = new Rectangle(Convert.ToInt32(this.Position.X + this.CenterPoint.X-8), Convert.ToInt32(this.Position.Y + this.CenterPoint.Y-8), 16, 16);
+                    this.Position = ParrentObject.PositionComponent.Position;
+                    this.ColliderRectangle = new Rectangle(Convert.ToInt32(this.Position.X - CenterPoint.X), Convert.ToInt32(this.Position.Y - CenterPoint.Y), Convert.ToInt32(this.Dimensions.X), Convert.ToInt32(this.Dimensions.Y));
+                    this.SkinColliderRectangle = new Rectangle(Convert.ToInt32((this.Position.X - CenterPoint.X) - 1), Convert.ToInt32((this.Position.Y - CenterPoint.Y) - 1), Convert.ToInt32(this.Dimensions.X + 2), Convert.ToInt32(this.Dimensions.Y + 2));
+                    this.CenterPointRectangle = new Rectangle(Convert.ToInt32(this.Position.X)-8, Convert.ToInt32(this.Position.Y)-8, 16, 16);
                 }
+
 
                 private void GenerateColliderTexture()
                 {
@@ -301,9 +286,71 @@ namespace MonoBlade
                      * Object Colison logic
                      */
 
+                    float deltaX = this.Position.X - gameObject_2.ColliderComponent.Position.X;
+                    float deltaY = this.Position.Y - gameObject_2.ColliderComponent.Position.Y;
+
+                    if (this.SkinColliderRectangle.Intersects(gameObject_2.ColliderComponent.SkinColliderRectangle))
+                    {
+                        //Console.WriteLine("Skin Contact");
+                        if (Math.Abs(deltaX) >= Math.Abs(deltaY))
+                        {
+                            if (deltaX >= 0 && this.ParrentObject.PositionComponent.Axis.X < 0)
+                            {
+                                //Console.WriteLine("X+");
+                                this.ParrentObject.PositionComponent.EditAxis("X", 0);
+                            }
+                            else if (deltaX < 0 && this.ParrentObject.PositionComponent.Axis.X > 0)
+                            {
+                                //Console.WriteLine("X-");
+                                this.ParrentObject.PositionComponent.EditAxis("X", 0);
+                            }
+
+                        }
+                        else
+                        {
+                            if (deltaY >= 0 && this.ParrentObject.PositionComponent.Axis.Y < 0)
+                            {
+                                //Console.WriteLine("Y+");
+                                this.ParrentObject.PositionComponent.EditAxis("Y", 0);
+                            }
+                            else if (deltaY < 0 && this.ParrentObject.PositionComponent.Axis.Y > 0)
+                            {
+                                //Console.WriteLine("Y-");
+                                this.ParrentObject.PositionComponent.EditAxis("Y", 0);
+                            }
+                        }
+                    }
+
                     if (this.ColliderRectangle.Intersects(gameObject_2.ColliderComponent.SkinColliderRectangle) && !this.IsTrigger && !gameObject_2.ColliderComponent.IsTrigger)
                     {
-                        Console.WriteLine($"Collision Detected betweene {this.ParrentObject.Name} and {gameObject_2.Name}");
+                        if (Math.Abs(deltaX) >= Math.Abs(deltaY))
+                        {
+                            if (deltaX >= 0)
+                            {
+                                Console.WriteLine($"Collision betweene {this.ParrentObject.Name} and {gameObject_2.Name}\nLeft of {this.ParrentObject.Name}");
+                                this.ParrentObject.PositionComponent.MovePrecise(new Vector2(-1,0));
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Collision betweene {this.ParrentObject.Name} and {gameObject_2.Name}\nRight of {this.ParrentObject.Name}");
+                                this.ParrentObject.PositionComponent.MovePrecise(new Vector2(1, 0));
+                            }
+                            
+                        }
+                        else
+                        {
+                            if (deltaY >= 0)
+                            {
+                                Console.WriteLine($"Collision betweene {this.ParrentObject.Name} and {gameObject_2.Name}\nAbove {this.ParrentObject.Name}");
+                                this.ParrentObject.PositionComponent.MovePrecise(new Vector2(0, -1));
+                            }
+                            else
+                            {
+                                Console.WriteLine($"Collision betweene {this.ParrentObject.Name} and {gameObject_2.Name}\nBellow {this.ParrentObject.Name}");
+                                this.ParrentObject.PositionComponent.MovePrecise(new Vector2(0, 1));
+                            }
+                        }
+                        //Console.WriteLine($"Collision Detected betweene {this.ParrentObject.Name} and {gameObject_2.Name}\nDistance X: {deltaX} | Distance Y: {deltaY}");
                     }
                 }
 
@@ -312,6 +359,11 @@ namespace MonoBlade
                     RecalculateColliderPos();
                     
                 }
+            }
+
+            public class Animation
+            {
+
             }
 
             public class AudioComponent
