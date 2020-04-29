@@ -17,6 +17,8 @@ namespace MonoBlade
         public List<GameObject> GameObjects;
 
         public Texture2D mouse;
+
+        public Core.PhysicsEngine.Core PhysicsCore;
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -32,6 +34,7 @@ namespace MonoBlade
         protected override void Initialize()
         {
             GraphicsDevice.BlendState = BlendState.AlphaBlend;
+            PhysicsCore = new Core.PhysicsEngine.Core(9.82f, this);
             // TODO: Add your initialization logic here
             GameObjects = new List<GameObject>();
 

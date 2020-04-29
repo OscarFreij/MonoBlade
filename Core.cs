@@ -12,6 +12,54 @@ namespace MonoBlade
 {
     public class Core
     {
+        public class PhysicsEngine
+        {
+            public class Core
+            {
+                public float GravityConstant { get; private set; }
+                public float Airdensity { get; private set; }
+                public float Airdensitydegrade { get; private set; }
+                public int Groundlevel { get; private set; }
+
+                public Game1 Game { get; private set; }
+                public GameTime GameTime { get; private set; }
+
+                public Core(float GravityConstant, Game1 Game)
+                {
+                    this.GravityConstant = GravityConstant;
+                    this.Game = Game;
+                }
+
+                public Core(float GravityConstant, int Groundlevel, Game1 Game)
+                {
+                    this.GravityConstant = GravityConstant;
+                    this.Groundlevel = Groundlevel;
+                }
+
+                public Core(float GravityConstant, int Groundlevel, float Airdensity, float Airdensitydegrade, Game1 Game)
+                {
+                    this.GravityConstant = GravityConstant;
+                    this.Groundlevel = Groundlevel;
+                    this.Airdensity = Airdensity;
+                    this.Airdensitydegrade = Airdensitydegrade;
+                }
+
+                public void Tick(GameTime gameTime)
+                {
+                    this.GameTime = GameTime;
+                }
+            }
+
+            public class Components
+            {
+                public class PAO //Physics Affecteble Object
+                {
+
+                }
+            }
+
+        }
+
         public class GameObject
         {
             public int Id { get; private set; }
@@ -156,7 +204,10 @@ namespace MonoBlade
                 public bool AcceptInput { get; private set; }
                 public Vector2 Axis { get; private set; }
                 public float BaseSpeed { get; private set; }
+                public float MaxSpeed { get; private set; }
+                public Vector2 Speed { get; private set; }
                 public float Weight { get; private set; }
+                
 
                 public PositionComponent(float X, float Y, bool AcceptInput)
                 {
