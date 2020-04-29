@@ -82,7 +82,7 @@ namespace MonoBlade
 
                 InputManeger = new Components.InputManeger(this);
 
-                PositionComponent = new Components.PositionComponent(X, Y, AcceptInput);
+                PositionComponent = new Components.PositionComponent(X, Y, AcceptInput, this);
 
                 ColliderComponent = new Components.ColliderComponent(new Vector2(100,100),new Vector2(0,0),false,this);
 
@@ -182,15 +182,17 @@ namespace MonoBlade
                         }
                     }
 
-                    //Console.WriteLine($"AXIS-X = {this.ParrentObject.PositionComponent.Axis.X} | AXIS-Y = {this.ParrentObject.PositionComponent.Axis.Y}");
+                    Console.WriteLine($"AXIS-X = {this.ParrentObject.PositionComponent.Axis.X} | AXIS-Y = {this.ParrentObject.PositionComponent.Axis.Y}");
 
                     if (Keyboard.GetState().IsKeyDown(Keys.LeftShift) || Keyboard.GetState().IsKeyDown(Keys.RightShift))
                     {
-                        this.ParrentObject.PositionComponent.HardMove(this.ParrentObject.PositionComponent.Axis, ActualSpeed * 2);
+                        //this.ParrentObject.PositionComponent.HardMove(this.ParrentObject.PositionComponent.Axis, ActualSpeed * 2);
+                        this.ParrentObject.PositionComponent.Tick();
                     }
                     else
                     {
-                        this.ParrentObject.PositionComponent.HardMove(this.ParrentObject.PositionComponent.Axis, ActualSpeed);
+                        //this.ParrentObject.PositionComponent.HardMove(this.ParrentObject.PositionComponent.Axis, ActualSpeed);
+                        this.ParrentObject.PositionComponent.Tick();
                     }
 
                     //Console.WriteLine(this.ParrentObject.PositionComponent.Axis.X + " : " + this.ParrentObject.PositionComponent.Axis.Y);
@@ -206,18 +208,30 @@ namespace MonoBlade
                 public float BaseSpeed { get; private set; }
                 public float MaxSpeed { get; private set; }
                 public Vector2 Speed { get; private set; }
+                public float Acceleration { get; private set; }
+                public float StopForce { get; private set; }
                 public float Weight { get; private set; }
-                
+                public GameObject ParrentObject { get; private set; }
 
-                public PositionComponent(float X, float Y, bool AcceptInput)
+                public Vector2 CurrentAccelerationForce { get; private set; }
+
+                public PositionComponent(float X, float Y, bool AcceptInput, GameObject ParrenObject)
                 {
+                    this.ParrentObject = ParrenObject;
                     this.AcceptInput = AcceptInput;
                     Position = new Vector2(X, Y);
                     Offset = new Vector2(0, 0);
                     Axis = new Vector2(0,0);
+                    Speed = new Vector2(0,0);
+                    CurrentAccelerationForce = new Vector2(0,0);
                     BaseSpeed = 50.0f;
+                    MaxSpeed = 100.0f;
+
+                    Acceleration = 20.0f;
+                    StopForce = 600.0f;
+
                     SpeedMultiplyer = 1.0f;
-                    Weight = 100.0f;
+                    Weight = 1.5f;
                 }
 
                 public void HardMove(Vector2 Axis, float Speed)
@@ -226,6 +240,11 @@ namespace MonoBlade
                     Vector2 Movement = new Vector2(Axis.X * subSpeed, Axis.Y * subSpeed);
                     //Console.WriteLine(Position.X + " : " + Position.Y);
                     Position += Movement;
+                }
+
+                public void DirectSpeedEdit(float X, float Y)
+                {
+                    Speed = new Vector2(Speed.X * X, Speed.Y * Y);
                 }
 
                 public void MovePrecise(Vector2 Axis)
@@ -245,13 +264,47 @@ namespace MonoBlade
                     }
                 }
 
-                public void InflictForce(Vector2 forceVector)
-                {
-
-                }
-
                 public void Tick()
                 {
+                    Vector2 LocalForce = new Vector2(0, 0);
+
+                    if (Axis.X != 0)
+                    {
+                        LocalForce.X = (this.Acceleration * Axis.X) / this.Weight;
+                    }
+                    else
+                    {
+                        if (Speed.X > 0)
+                        {
+                            LocalForce.X = -(this.StopForce * (Speed.X / MaxSpeed));
+                        }
+                        else if (Speed.X < 0)
+                        {
+                            LocalForce.X = -(this.StopForce * (Speed.X / MaxSpeed));
+                        }
+                    }
+
+                    if (Axis.Y != 0)
+                    {
+                        LocalForce.Y = (this.Acceleration * Axis.Y) / this.Weight;
+                    }
+                    else
+                    {
+                        if (Speed.Y > 0)
+                        {
+                            LocalForce.Y = -(this.StopForce * (Speed.Y / MaxSpeed));
+                        }
+                        else if (Speed.Y < 0)
+                        {
+                            LocalForce.Y = -(this.StopForce * (Speed.Y / MaxSpeed));
+                        }
+                    }
+
+                    CurrentAccelerationForce = new Vector2(LocalForce.X * (float)this.ParrentObject.GameTime.ElapsedGameTime.TotalSeconds, LocalForce.Y * (float)this.ParrentObject.GameTime.ElapsedGameTime.TotalSeconds);
+
+                    Speed = new Vector2(Speed.X + CurrentAccelerationForce.X, Speed.Y + CurrentAccelerationForce.Y);
+                    Console.WriteLine($"SPEED-X = {this.Speed.X} | SPEED-Y = {this.Speed.Y}");
+                    Position += Speed;
 
                 }
             }
@@ -349,11 +402,13 @@ namespace MonoBlade
                             {
                                 //Console.WriteLine("X+");
                                 this.ParrentObject.PositionComponent.EditAxis("X", 0);
+                                this.ParrentObject.PositionComponent.DirectSpeedEdit(0, 1);
                             }
                             else if (deltaX < 0 && this.ParrentObject.PositionComponent.Axis.X > 0)
                             {
                                 //Console.WriteLine("X-");
                                 this.ParrentObject.PositionComponent.EditAxis("X", 0);
+                                this.ParrentObject.PositionComponent.DirectSpeedEdit(0, 1);
                             }
 
                         }
@@ -363,11 +418,13 @@ namespace MonoBlade
                             {
                                 //Console.WriteLine("Y+");
                                 this.ParrentObject.PositionComponent.EditAxis("Y", 0);
+                                this.ParrentObject.PositionComponent.DirectSpeedEdit(1, 0);
                             }
                             else if (deltaY < 0 && this.ParrentObject.PositionComponent.Axis.Y > 0)
                             {
                                 //Console.WriteLine("Y-");
                                 this.ParrentObject.PositionComponent.EditAxis("Y", 0);
+                                this.ParrentObject.PositionComponent.DirectSpeedEdit(1, 0);
                             }
                         }
                     }
@@ -380,11 +437,13 @@ namespace MonoBlade
                             {
                                 Console.WriteLine($"Collision betweene {this.ParrentObject.Name} and {gameObject_2.Name}\nLeft of {this.ParrentObject.Name}");
                                 this.ParrentObject.PositionComponent.MovePrecise(new Vector2(-1,0));
+                                this.ParrentObject.PositionComponent.DirectSpeedEdit(0, 1);
                             }
                             else
                             {
                                 Console.WriteLine($"Collision betweene {this.ParrentObject.Name} and {gameObject_2.Name}\nRight of {this.ParrentObject.Name}");
                                 this.ParrentObject.PositionComponent.MovePrecise(new Vector2(1, 0));
+                                this.ParrentObject.PositionComponent.DirectSpeedEdit(0, 1);
                             }
                             
                         }
@@ -394,11 +453,13 @@ namespace MonoBlade
                             {
                                 Console.WriteLine($"Collision betweene {this.ParrentObject.Name} and {gameObject_2.Name}\nAbove {this.ParrentObject.Name}");
                                 this.ParrentObject.PositionComponent.MovePrecise(new Vector2(0, -1));
+                                this.ParrentObject.PositionComponent.DirectSpeedEdit(1, 0);
                             }
                             else
                             {
                                 Console.WriteLine($"Collision betweene {this.ParrentObject.Name} and {gameObject_2.Name}\nBellow {this.ParrentObject.Name}");
                                 this.ParrentObject.PositionComponent.MovePrecise(new Vector2(0, 1));
+                                this.ParrentObject.PositionComponent.DirectSpeedEdit(1, 0);
                             }
                         }
                         //Console.WriteLine($"Collision Detected betweene {this.ParrentObject.Name} and {gameObject_2.Name}\nDistance X: {deltaX} | Distance Y: {deltaY}");
