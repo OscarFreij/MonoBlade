@@ -187,12 +187,12 @@ namespace MonoBlade
                     if (Keyboard.GetState().IsKeyDown(Keys.LeftShift) || Keyboard.GetState().IsKeyDown(Keys.RightShift))
                     {
                         //this.ParrentObject.PositionComponent.HardMove(this.ParrentObject.PositionComponent.Axis, ActualSpeed * 2);
-                        this.ParrentObject.PositionComponent.Tick();
+                        this.ParrentObject.PositionComponent.Tick(true);
                     }
                     else
                     {
                         //this.ParrentObject.PositionComponent.HardMove(this.ParrentObject.PositionComponent.Axis, ActualSpeed);
-                        this.ParrentObject.PositionComponent.Tick();
+                        this.ParrentObject.PositionComponent.Tick(false);
                     }
 
                     //Console.WriteLine(this.ParrentObject.PositionComponent.Axis.X + " : " + this.ParrentObject.PositionComponent.Axis.Y);
@@ -209,6 +209,7 @@ namespace MonoBlade
                 public float MaxSpeed { get; private set; }
                 public Vector2 Speed { get; private set; }
                 public float Acceleration { get; private set; }
+                public float SprintAcceleration { get; private set; }
                 public float StopForce { get; private set; }
                 public float Weight { get; private set; }
                 public GameObject ParrentObject { get; private set; }
@@ -228,6 +229,7 @@ namespace MonoBlade
                     MaxSpeed = 100.0f;
 
                     Acceleration = 20.0f;
+                    SprintAcceleration = 60.0f;
                     StopForce = 600.0f;
 
                     SpeedMultiplyer = 1.0f;
@@ -264,39 +266,53 @@ namespace MonoBlade
                     }
                 }
 
-                public void Tick()
+                public void Tick(bool isRunning)
                 {
                     Vector2 LocalForce = new Vector2(0, 0);
 
                     if (Axis.X != 0)
                     {
-                        LocalForce.X = (this.Acceleration * Axis.X) / this.Weight;
+                        if (!isRunning)
+                        {
+                            LocalForce.X = (this.Acceleration * Axis.X) / this.Weight;
+                        }
+                        else if (isRunning)
+                        {
+                            LocalForce.X = (this.SprintAcceleration * Axis.X) / this.Weight;
+                        }
                     }
                     else
                     {
                         if (Speed.X > 0)
                         {
-                            LocalForce.X = -(this.StopForce * (Speed.X / MaxSpeed));
+                            LocalForce.X = -(this.StopForce * (Speed.X / MaxSpeed)) / Weight;
                         }
                         else if (Speed.X < 0)
                         {
-                            LocalForce.X = -(this.StopForce * (Speed.X / MaxSpeed));
+                            LocalForce.X = -(this.StopForce * (Speed.X / MaxSpeed)) / Weight;
                         }
                     }
 
                     if (Axis.Y != 0)
                     {
-                        LocalForce.Y = (this.Acceleration * Axis.Y) / this.Weight;
+                        if (!isRunning)
+                        {
+                            LocalForce.Y = (this.Acceleration * Axis.Y) / this.Weight;
+                        }
+                        else if (isRunning)
+                        {
+                            LocalForce.Y = (this.SprintAcceleration * Axis.Y) / this.Weight;
+                        }
                     }
                     else
                     {
                         if (Speed.Y > 0)
                         {
-                            LocalForce.Y = -(this.StopForce * (Speed.Y / MaxSpeed));
+                            LocalForce.Y = -(this.StopForce * (Speed.Y / MaxSpeed)) / Weight;
                         }
                         else if (Speed.Y < 0)
                         {
-                            LocalForce.Y = -(this.StopForce * (Speed.Y / MaxSpeed));
+                            LocalForce.Y = -(this.StopForce * (Speed.Y / MaxSpeed)) / Weight;
                         }
                     }
 
@@ -304,6 +320,18 @@ namespace MonoBlade
 
                     Speed = new Vector2(Speed.X + CurrentAccelerationForce.X, Speed.Y + CurrentAccelerationForce.Y);
                     Console.WriteLine($"SPEED-X = {this.Speed.X} | SPEED-Y = {this.Speed.Y}");
+
+                    if (Math.Abs(Speed.X) < 0.1f)
+                    {
+                        Speed = new Vector2(0, Speed.Y);
+                    }
+
+                    if (Math.Abs(Speed.Y) < 0.1f)
+                    {
+                        Speed = new Vector2(Speed.X, 0);
+                    }
+
+
                     Position += Speed;
 
                 }
@@ -336,6 +364,7 @@ namespace MonoBlade
                 public Vector2 Position { get; private set; }
 
                 public bool IsTrigger { get; private set; }
+                public bool IsOnGround { get; private set; }
                 public Texture2D ColliderTexture { get; private set; }
                 public Texture2D CenterTexture { get; private set; }
                 public Rectangle ColliderRectangle { get; private set; }
@@ -350,6 +379,7 @@ namespace MonoBlade
                     this.Offset = Offset;
                     this.ParrentObject = ParrentObject;
                     this.IsTrigger = ColiderIsTrigger;
+                    this.IsOnGround = false;
                     this.Position = ParrentObject.PositionComponent.Position;
                     Console.WriteLine(this.Dimensions / 2);
                     this.CenterPoint = (this.Dimensions / 2);
@@ -395,6 +425,11 @@ namespace MonoBlade
 
                     if (this.SkinColliderRectangle.Intersects(gameObject_2.ColliderComponent.SkinColliderRectangle))
                     {
+                        if (gameObject_2.Name.Contains("Ground"))
+                        {
+                            this.IsOnGround = true;
+                        }
+
                         //Console.WriteLine("Skin Contact");
                         if (Math.Abs(deltaX) >= Math.Abs(deltaY))
                         {
@@ -469,7 +504,8 @@ namespace MonoBlade
                 public void Tick()
                 {
                     RecalculateColliderPos();
-                    
+                    Console.WriteLine(IsOnGround);
+                    this.IsOnGround = false;
                 }
             }
 

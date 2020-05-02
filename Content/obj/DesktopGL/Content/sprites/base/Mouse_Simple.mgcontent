@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>C:/Users/otg02/source/repos/MonoBlade/Content/sprites/base/Mouse_Simple.png</SourceFile>
-  <SourceTime>2020-04-28T20:45:51.2430237+02:00</SourceTime>
-  <DestFile>C:/Users/otg02/source/repos/MonoBlade/Content/bin/DesktopGL/Content/sprites/base/Mouse_Simple.xnb</DestFile>
-  <DestTime>2020-04-28T20:46:29.9139799+02:00</DestTime>
+  <SourceFile>Z:/Documents/git/MonoBlade/Content/sprites/base/Mouse_Simple.png</SourceFile>
+  <SourceTime>2020-04-30T09:36:08.5714631+02:00</SourceTime>
+  <DestFile>Z:/Documents/git/MonoBlade/Content/bin/DesktopGL/Content/sprites/base/Mouse_Simple.xnb</DestFile>
+  <DestTime>2020-04-30T09:53:39.1072573+02:00</DestTime>
   <Importer>TextureImporter</Importer>
   <ImporterTime>2018-12-08T17:35:54+01:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
