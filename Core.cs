@@ -293,28 +293,52 @@ namespace MonoBlade
                         }
                     }
 
-                    if (Axis.Y != 0)
+                    /*
+                     * Movement in the Y-Axis (No Gravity)
+                     */
+                    /*
+                   if (Axis.Y != 0)
+                   {
+                       if (!isRunning)
+                       {
+                           LocalForce.Y = (this.Acceleration * Axis.Y) / this.Weight;
+                       }
+                       else if (isRunning)
+                       {
+                           LocalForce.Y = (this.SprintAcceleration * Axis.Y) / this.Weight;
+                       }
+                   }
+                   else
+                   {
+                       if (Speed.Y > 0)
+                       {
+                           LocalForce.Y = -(this.StopForce * (Speed.Y / MaxSpeed)) / Weight;
+                       }
+                       else if (Speed.Y < 0)
+                       {
+                           LocalForce.Y = -(this.StopForce * (Speed.Y / MaxSpeed)) / Weight;
+                       }
+                   }
+                   */
+
+
+                    /*
+                     * Movement in the Y-Axis (with Gravity and jumping)
+                     */
+
+                    if (Axis.Y < 0 && this.ParrentObject.ColliderComponent.IsOnGround)
                     {
-                        if (!isRunning)
-                        {
-                            LocalForce.Y = (this.Acceleration * Axis.Y) / this.Weight;
-                        }
-                        else if (isRunning)
-                        {
-                            LocalForce.Y = (this.SprintAcceleration * Axis.Y) / this.Weight;
-                        }
+                        LocalForce.Y = -(800.0f) / this.Weight;
+                    }
+                    else if (!this.ParrentObject.ColliderComponent.IsOnGround)
+                    {
+                        LocalForce.Y = this.ParrentObject.Game.PhysicsCore.GravityConstant * this.Weight;
                     }
                     else
                     {
-                        if (Speed.Y > 0)
-                        {
-                            LocalForce.Y = -(this.StopForce * (Speed.Y / MaxSpeed)) / Weight;
-                        }
-                        else if (Speed.Y < 0)
-                        {
-                            LocalForce.Y = -(this.StopForce * (Speed.Y / MaxSpeed)) / Weight;
-                        }
+                        LocalForce.Y = 0.0f;
                     }
+
 
                     CurrentAccelerationForce = new Vector2(LocalForce.X * (float)this.ParrentObject.GameTime.ElapsedGameTime.TotalSeconds, LocalForce.Y * (float)this.ParrentObject.GameTime.ElapsedGameTime.TotalSeconds);
 
