@@ -38,10 +38,10 @@ namespace MonoBlade
             // TODO: Add your initialization logic here
             GameObjects = new List<GameObject>();
 
-            GameObjects.Add(new Core.GameObject(0, "Player", this, 200, 50, true));
-            GameObjects.Add(new Core.GameObject(1, "Ground-RE1", this, 200, 200, false));
-            GameObjects.Add(new Core.GameObject(1, "Ground-RE2", this, 400, 300, false));
-            GameObjects.Add(new Core.GameObject(2, "Ground-RE3", this, 600, 400, false));
+            GameObjects.Add(new Core.GameObject(0, "Player", this, 200, 50, true, new Vector2(20, 30),new Vector2(0, 0), false, false));
+            GameObjects.Add(new Core.GameObject(1, "Ground-RE1", this, 200, 280, false, new Vector2(200, 30), new Vector2(0, 0), false, false));
+            GameObjects.Add(new Core.GameObject(1, "Ground-RE2", this, 400, 300, false, new Vector2(100, 30), new Vector2(0, 0), false, false));
+            GameObjects.Add(new Core.GameObject(2, "Ground-RE3", this, 600, 400, false, new Vector2(50, 30), new Vector2(0, 0), false, false));
             base.Initialize();
         }
 

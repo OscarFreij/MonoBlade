@@ -72,7 +72,7 @@ namespace MonoBlade
             public Components.ColliderComponent ColliderComponent { get; private set; }
             public GameTime GameTime { get; private set; }
 
-            public GameObject(int id, string name, Game1 game, float X, float Y, bool AcceptInput)
+            public GameObject(int id, string name, Game1 game, float X, float Y, bool AcceptInput, Vector2 ColliderDimentions, Vector2 ColliderOffset, bool ColliderIsTrigger, bool HasAI)
             {
                 Id = id;
 
@@ -84,7 +84,7 @@ namespace MonoBlade
 
                 PositionComponent = new Components.PositionComponent(X, Y, AcceptInput, this);
 
-                ColliderComponent = new Components.ColliderComponent(new Vector2(100,100),new Vector2(0,0),false,this);
+                ColliderComponent = new Components.ColliderComponent(ColliderDimentions, ColliderOffset, ColliderIsTrigger, this);
 
                 SpriteComponent = new Components.SpriteComponent(this);
 
@@ -98,8 +98,7 @@ namespace MonoBlade
                 {
                     this.InputManeger.Tick();
                 }
-                
-
+            
                 this.ColliderComponent.Tick();
             }
 
@@ -130,6 +129,12 @@ namespace MonoBlade
          */
         public class Components
         {
+            public class AI
+            {
+                public GameObject Target { get; private set; }
+                public int Team { get; private set; }
+            }
+
             public class InputManeger
             {
                 private GameObject ParrentObject { get; set; }
@@ -405,7 +410,6 @@ namespace MonoBlade
                     this.IsTrigger = ColiderIsTrigger;
                     this.IsOnGround = false;
                     this.Position = ParrentObject.PositionComponent.Position;
-                    Console.WriteLine(this.Dimensions / 2);
                     this.CenterPoint = (this.Dimensions / 2);
 
 
@@ -447,23 +451,29 @@ namespace MonoBlade
                     float deltaX = this.Position.X - gameObject_2.ColliderComponent.Position.X;
                     float deltaY = this.Position.Y - gameObject_2.ColliderComponent.Position.Y;
 
+                    float deltaXP = deltaX / (gameObject_2.ColliderComponent.Dimensions.X/2);
+                    float deltaYP = deltaY / (gameObject_2.ColliderComponent.Dimensions.Y/2);
+
                     if (this.SkinColliderRectangle.Intersects(gameObject_2.ColliderComponent.SkinColliderRectangle))
                     {
+                        Console.WriteLine($"{this.ParrentObject.Name} <=> DELTA-X = {deltaX} | DELTA-Y = {deltaY}");
+                        Console.WriteLine($"{this.ParrentObject.Name} <=> DELTA-X-Parsed = {deltaXP} | DELTA-Y-Parsed = {deltaYP}");
+
                         if (gameObject_2.Name.Contains("Ground"))
                         {
                             this.IsOnGround = true;
                         }
 
                         //Console.WriteLine("Skin Contact");
-                        if (Math.Abs(deltaX) >= Math.Abs(deltaY))
+                        if (Math.Abs(deltaXP) >= Math.Abs(deltaYP))
                         {
-                            if (deltaX >= 0 && this.ParrentObject.PositionComponent.Axis.X < 0)
+                            if (deltaXP >= 0 && this.ParrentObject.PositionComponent.Axis.X < 0)
                             {
                                 //Console.WriteLine("X+");
                                 this.ParrentObject.PositionComponent.EditAxis("X", 0);
                                 this.ParrentObject.PositionComponent.DirectSpeedEdit(0, 1);
                             }
-                            else if (deltaX < 0 && this.ParrentObject.PositionComponent.Axis.X > 0)
+                            else if (deltaXP < 0 && this.ParrentObject.PositionComponent.Axis.X > 0)
                             {
                                 //Console.WriteLine("X-");
                                 this.ParrentObject.PositionComponent.EditAxis("X", 0);
@@ -473,13 +483,13 @@ namespace MonoBlade
                         }
                         else
                         {
-                            if (deltaY >= 0 && this.ParrentObject.PositionComponent.Axis.Y < 0)
+                            if (deltaYP >= 0 && this.ParrentObject.PositionComponent.Axis.Y < 0)
                             {
                                 //Console.WriteLine("Y+");
                                 this.ParrentObject.PositionComponent.EditAxis("Y", 0);
                                 this.ParrentObject.PositionComponent.DirectSpeedEdit(1, 0);
                             }
-                            else if (deltaY < 0 && this.ParrentObject.PositionComponent.Axis.Y > 0)
+                            else if (deltaYP < 0 && this.ParrentObject.PositionComponent.Axis.Y > 0)
                             {
                                 //Console.WriteLine("Y-");
                                 this.ParrentObject.PositionComponent.EditAxis("Y", 0);
@@ -490,9 +500,9 @@ namespace MonoBlade
 
                     if (this.ColliderRectangle.Intersects(gameObject_2.ColliderComponent.SkinColliderRectangle) && !this.IsTrigger && !gameObject_2.ColliderComponent.IsTrigger)
                     {
-                        if (Math.Abs(deltaX) >= Math.Abs(deltaY))
+                        if (Math.Abs(deltaXP) >= Math.Abs(deltaYP))
                         {
-                            if (deltaX >= 0)
+                            if (deltaXP >= 0)
                             {
                                 Console.WriteLine($"Collision betweene {this.ParrentObject.Name} and {gameObject_2.Name}\nLeft of {this.ParrentObject.Name}");
                                 this.ParrentObject.PositionComponent.MovePrecise(new Vector2(-1,0));
@@ -508,7 +518,7 @@ namespace MonoBlade
                         }
                         else
                         {
-                            if (deltaY >= 0)
+                            if (deltaYP >= 0)
                             {
                                 Console.WriteLine($"Collision betweene {this.ParrentObject.Name} and {gameObject_2.Name}\nAbove {this.ParrentObject.Name}");
                                 this.ParrentObject.PositionComponent.MovePrecise(new Vector2(0, -1));
@@ -528,7 +538,7 @@ namespace MonoBlade
                 public void Tick()
                 {
                     RecalculateColliderPos();
-                    Console.WriteLine(IsOnGround);
+                    //Console.WriteLine(IsOnGround);
                     this.IsOnGround = false;
                 }
             }
