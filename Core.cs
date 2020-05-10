@@ -64,15 +64,17 @@ namespace MonoBlade
         {
             public int Id { get; private set; }
             public string Name { get; set; }
+            public int Team { get; private set; }
             public Game1 Game { get; private set; }
             public Components.SpriteComponent SpriteComponent { get; private set; }
             public Components.AudioComponent AudioComponent { get; private set; }
             public Components.InputManeger InputManeger { get; private set; }
             public Components.PositionComponent PositionComponent { get; private set; }
             public Components.ColliderComponent ColliderComponent { get; private set; }
+            public Components.AI AI { get; private set; }
             public GameTime GameTime { get; private set; }
 
-            public GameObject(int id, string name, Game1 game, float X, float Y, bool AcceptInput, Vector2 ColliderDimentions, Vector2 ColliderOffset, bool ColliderIsTrigger, bool HasAI)
+            public GameObject(int id, string name, Game1 game, float X, float Y, bool AcceptInput, Vector2 ColliderDimentions, Vector2 ColliderOffset, bool ColliderIsTrigger, bool HasAI , int Team)
             {
                 Id = id;
 
@@ -87,6 +89,11 @@ namespace MonoBlade
                 ColliderComponent = new Components.ColliderComponent(ColliderDimentions, ColliderOffset, ColliderIsTrigger, this);
 
                 SpriteComponent = new Components.SpriteComponent(this);
+
+                if (HasAI)
+                {
+                    AI = new Components.AI(Team, this);
+                }
 
             }
 
@@ -133,6 +140,27 @@ namespace MonoBlade
             {
                 public GameObject Target { get; private set; }
                 public int Team { get; private set; }
+                public GameObject ParrentObject { get; private set; }
+
+                public AI(int Team, GameObject ParrentObject)
+                {
+                    this.ParrentObject = ParrentObject;
+                    this.Team = Team;
+                }
+
+                public void Tick()
+                {
+                    GameObject NewTarget;
+
+
+                    foreach (GameObject PotentialTarget in this.ParrentObject.Game.GameObjects)
+                    {
+                        if (this.Team != PotentialTarget.Team)
+                        {
+
+                        }
+                    }
+                }
             }
 
             public class InputManeger
