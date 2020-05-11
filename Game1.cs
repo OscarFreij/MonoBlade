@@ -38,10 +38,13 @@ namespace MonoBlade
             // TODO: Add your initialization logic here
             GameObjects = new List<GameObject>();
 
-            GameObjects.Add(new Core.GameObject(0, "Player", this, 200, 50, true, new Vector2(20, 30),new Vector2(0, 0), false, false));
-            GameObjects.Add(new Core.GameObject(1, "Ground-RE1", this, Window.ClientBounds.Width/2, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(600, 30), new Vector2(0, 0), false, false));
+            GameObjects.Add(new Core.GameObject(0, "Player", this, 200, 50, true, new Vector2(20, 30),new Vector2(0, 0), false, false,1, 100));
 
-            GameObjects.Add(new Core.GameObject(2, "Enemy-1", this, 600, 50, false, new Vector2(20, 30), new Vector2(0, 0), false, true));
+            GameObjects.Add(new Core.GameObject(1, "Enemy-1", this, 600, 50, false, new Vector2(20, 30), new Vector2(0, 0), false, true,2, 10));
+
+            GameObjects.Add(new Core.GameObject(2, "Ground-RE1", this, Window.ClientBounds.Width / 2, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(600, 30), new Vector2(0, 0), false, false, 0, 0));
+            GameObjects.Add(new Core.GameObject(3, "Ground-RE1", this, (Window.ClientBounds.Width / 2) - 315, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(30, 60), new Vector2(0, 0), false, false, 0, 0));
+            GameObjects.Add(new Core.GameObject(4, "Ground-RE1", this, (Window.ClientBounds.Width / 2) + 315, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(30, 60), new Vector2(0, 0), false, false, 0, 0));
 
             base.Initialize();
         }

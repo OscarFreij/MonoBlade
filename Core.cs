@@ -74,7 +74,7 @@ namespace MonoBlade
             public Components.AI AI { get; private set; }
             public GameTime GameTime { get; private set; }
 
-            public GameObject(int id, string name, Game1 game, float X, float Y, bool AcceptInput, Vector2 ColliderDimentions, Vector2 ColliderOffset, bool ColliderIsTrigger, bool HasAI , int Team)
+            public GameObject(int id, string name, Game1 game, float X, float Y, bool AcceptInput, Vector2 ColliderDimentions, Vector2 ColliderOffset, bool ColliderIsTrigger, bool HasAI , int Team, float MaxSpeed)
             {
                 Id = id;
 
@@ -82,9 +82,11 @@ namespace MonoBlade
 
                 Game = game;
 
+                this.Team = Team;
+
                 InputManeger = new Components.InputManeger(this);
 
-                PositionComponent = new Components.PositionComponent(X, Y, AcceptInput, this);
+                PositionComponent = new Components.PositionComponent(X, Y, AcceptInput, MaxSpeed, this);
 
                 ColliderComponent = new Components.ColliderComponent(ColliderDimentions, ColliderOffset, ColliderIsTrigger, this);
 
@@ -101,10 +103,12 @@ namespace MonoBlade
             {
                 this.GameTime = GameTime;
 
-                if (this.PositionComponent.AcceptInput == true)
+                if (this.AI != null)
                 {
-                    this.InputManeger.Tick();
+                    this.AI.Tick();
                 }
+
+                this.InputManeger.Tick();
             
                 this.ColliderComponent.Tick();
             }
@@ -150,15 +154,48 @@ namespace MonoBlade
 
                 public void Tick()
                 {
-                    GameObject NewTarget;
+                    double TargetDelta;
 
+                    if (Target == null)
+                    {
+                        TargetDelta = 9999999999;
+                    }
+                    else
+                    {
+                        TargetDelta = Math.Abs((this.ParrentObject.PositionComponent.Position.X - Target.PositionComponent.Position.X));
+                    }
 
                     foreach (GameObject PotentialTarget in this.ParrentObject.Game.GameObjects)
                     {
-                        if (this.Team != PotentialTarget.Team)
+                        if (this.ParrentObject.Team != PotentialTarget.Team && PotentialTarget.Team != 0)
                         {
-
+                            double Delta = Math.Abs((this.ParrentObject.PositionComponent.Position.X - PotentialTarget.PositionComponent.Position.X));
+                            if (Delta <= TargetDelta)
+                            {
+                                this.Target = PotentialTarget;
+                            }
                         }
+                    }
+
+
+                    try
+                    {
+                        if (this.ParrentObject.PositionComponent.Position.X > this.Target.PositionComponent.Position.X)
+                        {
+                            this.ParrentObject.PositionComponent.EditAxis("X", -1);
+                        }
+                        else if (this.ParrentObject.PositionComponent.Position.X < this.Target.PositionComponent.Position.X)
+                        {
+                            this.ParrentObject.PositionComponent.EditAxis("X", 1);
+                        }
+                        else
+                        {
+                            this.ParrentObject.PositionComponent.EditAxis("X", 0);
+                        }
+                    }
+                    catch
+                    {
+                        Console.WriteLine("AI ERROR: Can not get direction of target");
                     }
                 }
             }
@@ -175,60 +212,85 @@ namespace MonoBlade
                 {
                     float ActualSpeed = this.ParrentObject.PositionComponent.BaseSpeed * (float)this.ParrentObject.GameTime.ElapsedGameTime.TotalSeconds;
 
-                    if (Keyboard.GetState().IsKeyDown(Keys.A) && !Keyboard.GetState().IsKeyDown(Keys.D))
+                    if (this.ParrentObject.PositionComponent.AcceptInput)
                     {
-                        this.ParrentObject.PositionComponent.EditAxis("X",-1);
-                    }
-                    else if (!Keyboard.GetState().IsKeyDown(Keys.A) && Keyboard.GetState().IsKeyDown(Keys.D))
-                    {
-                        this.ParrentObject.PositionComponent.EditAxis("X", 1);
-                    }
-                    else
-                    {
-                        this.ParrentObject.PositionComponent.EditAxis("X", 0);
-                    }
-
-                    // Up / Down
-                    if (Keyboard.GetState().IsKeyDown(Keys.W) && !Keyboard.GetState().IsKeyDown(Keys.S))
-                    {
-                        this.ParrentObject.PositionComponent.EditAxis("Y", -1);
-                    }
-                    else if (!Keyboard.GetState().IsKeyDown(Keys.W) && Keyboard.GetState().IsKeyDown(Keys.S))
-                    {
-                        this.ParrentObject.PositionComponent.EditAxis("Y", 1);
-                    }
-                    else
-                    {
-                        this.ParrentObject.PositionComponent.EditAxis("Y", 0);
-                    }
-
-                    
-                    if (!this.ParrentObject.ColliderComponent.IsTrigger)
-                    {
-                        foreach (var item in this.ParrentObject.Game.GameObjects)
+                        if (Keyboard.GetState().IsKeyDown(Keys.A) && !Keyboard.GetState().IsKeyDown(Keys.D))
                         {
-                            if (item.Name != this.ParrentObject.Name)
-                            {
-                                this.ParrentObject.ColliderComponent.CheckColision(item);
-                            }
-
+                            this.ParrentObject.PositionComponent.EditAxis("X", -1);
                         }
-                    }
+                        else if (!Keyboard.GetState().IsKeyDown(Keys.A) && Keyboard.GetState().IsKeyDown(Keys.D))
+                        {
+                            this.ParrentObject.PositionComponent.EditAxis("X", 1);
+                        }
+                        else
+                        {
+                            this.ParrentObject.PositionComponent.EditAxis("X", 0);
+                        }
 
-                    Console.WriteLine($"AXIS-X = {this.ParrentObject.PositionComponent.Axis.X} | AXIS-Y = {this.ParrentObject.PositionComponent.Axis.Y}");
+                        // Up / Down
+                        if (Keyboard.GetState().IsKeyDown(Keys.W) && !Keyboard.GetState().IsKeyDown(Keys.S))
+                        {
+                            this.ParrentObject.PositionComponent.EditAxis("Y", -1);
+                        }
+                        else if (!Keyboard.GetState().IsKeyDown(Keys.W) && Keyboard.GetState().IsKeyDown(Keys.S))
+                        {
+                            this.ParrentObject.PositionComponent.EditAxis("Y", 1);
+                        }
+                        else
+                        {
+                            this.ParrentObject.PositionComponent.EditAxis("Y", 0);
+                        }
 
-                    if (Keyboard.GetState().IsKeyDown(Keys.LeftShift) || Keyboard.GetState().IsKeyDown(Keys.RightShift))
-                    {
-                        //this.ParrentObject.PositionComponent.HardMove(this.ParrentObject.PositionComponent.Axis, ActualSpeed * 2);
-                        this.ParrentObject.PositionComponent.Tick(true);
+
+                        if (!this.ParrentObject.ColliderComponent.IsTrigger)
+                        {
+                            foreach (var item in this.ParrentObject.Game.GameObjects)
+                            {
+                                if (item.Name != this.ParrentObject.Name)
+                                {
+                                    this.ParrentObject.ColliderComponent.CheckColision(item);
+                                }
+
+                            }
+                        }
+
+                        Console.WriteLine($"AXIS-X = {this.ParrentObject.PositionComponent.Axis.X} | AXIS-Y = {this.ParrentObject.PositionComponent.Axis.Y}");
+
+                        if (Keyboard.GetState().IsKeyDown(Keys.LeftShift) || Keyboard.GetState().IsKeyDown(Keys.RightShift))
+                        {
+                            //this.ParrentObject.PositionComponent.HardMove(this.ParrentObject.PositionComponent.Axis, ActualSpeed * 2);
+                            this.ParrentObject.PositionComponent.Tick(true);
+                        }
+                        else
+                        {
+                            //this.ParrentObject.PositionComponent.HardMove(this.ParrentObject.PositionComponent.Axis, ActualSpeed);
+                            this.ParrentObject.PositionComponent.Tick(false);
+                        }
+
+                        //Console.WriteLine(this.ParrentObject.PositionComponent.Axis.X + " : " + this.ParrentObject.PositionComponent.Axis.Y);
                     }
-                    else
+                    else if (this.ParrentObject.AI != null)
                     {
-                        //this.ParrentObject.PositionComponent.HardMove(this.ParrentObject.PositionComponent.Axis, ActualSpeed);
+                        if (!this.ParrentObject.ColliderComponent.IsTrigger)
+                        {
+                            foreach (var item in this.ParrentObject.Game.GameObjects)
+                            {
+                                if (item.Name != this.ParrentObject.Name)
+                                {
+                                    this.ParrentObject.ColliderComponent.CheckColision(item);
+                                }
+
+                            }
+                        }
                         this.ParrentObject.PositionComponent.Tick(false);
                     }
-
-                    //Console.WriteLine(this.ParrentObject.PositionComponent.Axis.X + " : " + this.ParrentObject.PositionComponent.Axis.Y);
+                    else
+                    {
+                        /*
+                         * Do nothing.
+                         * Object is static
+                         */
+                    }
                 }
             }
             public class PositionComponent
@@ -249,7 +311,7 @@ namespace MonoBlade
 
                 public Vector2 CurrentAccelerationForce { get; private set; }
 
-                public PositionComponent(float X, float Y, bool AcceptInput, GameObject ParrenObject)
+                public PositionComponent(float X, float Y, bool AcceptInput, float MaxSpeed, GameObject ParrenObject)
                 {
                     this.ParrentObject = ParrenObject;
                     this.AcceptInput = AcceptInput;
@@ -258,10 +320,10 @@ namespace MonoBlade
                     Axis = new Vector2(0,0);
                     Speed = new Vector2(0,0);
                     CurrentAccelerationForce = new Vector2(0,0);
-                    BaseSpeed = 50.0f;
-                    MaxSpeed = 100.0f;
+                    BaseSpeed = 20.0f;
+                    this.MaxSpeed = MaxSpeed;
 
-                    Acceleration = 20.0f;
+                    Acceleration = 10.0f;
                     SprintAcceleration = 60.0f;
                     StopForce = 600.0f;
 
