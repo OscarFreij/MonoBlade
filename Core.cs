@@ -531,7 +531,25 @@ namespace MonoBlade
                 public SpriteComponent(GameObject ParrentObject)
                 {
                     this.ParrentObject = ParrentObject;
-                    Sprite = this.ParrentObject.Game.Content.Load<Texture2D>("random1");
+
+                    if (this.ParrentObject.Name.Contains("Player"))
+                    {
+                        Sprite = this.ParrentObject.Game.Content.Load<Texture2D>("sprites/Player");
+                    }
+                    else if (this.ParrentObject.Name.Contains("Enemy"))
+                    {
+                        Sprite = this.ParrentObject.Game.Content.Load<Texture2D>("sprites/Enemy");
+                    }
+                    else if (this.ParrentObject.Name.Contains("Bomb"))
+                    {
+                        Sprite = this.ParrentObject.Game.Content.Load<Texture2D>("sprites/Bomb");
+                    }
+                    else
+                    {
+                        Sprite = this.ParrentObject.Game.Content.Load<Texture2D>("random1");
+                    }
+
+                    
                     this.OriginPoint = new Vector2(Sprite.Width / 2, Sprite.Height / 2);
                 }
 
@@ -629,6 +647,7 @@ namespace MonoBlade
                         if (gameObject_2.Name.Contains("Ground"))
                         {
                             this.IsOnGround = true;
+                            Console.WriteLine($"{this.ParrentObject.Name} is touching ground!");
                         }
 
                         //Console.WriteLine("Skin Contact");

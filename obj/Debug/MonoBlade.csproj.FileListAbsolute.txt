@@ -38,3 +38,6 @@ C:\Users\otg02\source\repos\MonoBlade\obj\Debug\MonoBlade.pdb
 C:\Users\otg02\source\repos\MonoBlade\bin\DesktopGL\AnyCPU\Debug\Content\random1.xnb
 C:\Users\otg02\source\repos\MonoBlade\bin\DesktopGL\AnyCPU\Debug\Content\sprites\base\Mouse_Simple.xnb
 \\fs1.ad.ssis.nu\18osfr\Documents\git\MonoBlade\bin\DesktopGL\AnyCPU\Debug\Content\sprites\base\Mouse_Simple.xnb
+C:\Users\otg02\source\repos\MonoBlade\bin\DesktopGL\AnyCPU\Debug\Content\sprites\Bomb.xnb
+C:\Users\otg02\source\repos\MonoBlade\bin\DesktopGL\AnyCPU\Debug\Content\sprites\Enemy.xnb
+C:\Users\otg02\source\repos\MonoBlade\bin\DesktopGL\AnyCPU\Debug\Content\sprites\Player.xnb

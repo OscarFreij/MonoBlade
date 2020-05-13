@@ -6,8 +6,14 @@
   <SourceFiles>
     <File>C:/Users/otg02/source/repos/MonoBlade/Content/random1.png</File>
     <File>C:/Users/otg02/source/repos/MonoBlade/Content/sprites/base/Mouse_Simple.png</File>
+    <File>C:/Users/otg02/source/repos/MonoBlade/Content/sprites/Bomb.png</File>
+    <File>C:/Users/otg02/source/repos/MonoBlade/Content/sprites/Enemy.png</File>
+    <File>C:/Users/otg02/source/repos/MonoBlade/Content/sprites/Player.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
   </DestFiles>
