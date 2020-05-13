@@ -135,13 +135,10 @@ namespace MonoBlade
                     for (int i = 0; i < data.Length; ++i) data[i] = new Color(0, 280, 0, 40);
                     ColliderTexture.SetData(data);
 
+                    //Game.spriteBatch.Draw(ColliderTexture, this.ColliderComponent.SkinColliderRectangle, Color.White);
+                    Game.spriteBatch.Draw(this.ColliderComponent.ColliderTexture, this.ColliderComponent.ColliderRectangle, Color.White);
+                    //Game.spriteBatch.Draw(this.ColliderComponent.CenterTexture, this.ColliderComponent.CenterPointRectangle, Color.White);
 
-                    if (this.Name.Contains("Ground") || true)
-                    {
-                        Game.spriteBatch.Draw(ColliderTexture, this.ColliderComponent.SkinColliderRectangle, Color.White);
-                        Game.spriteBatch.Draw(this.ColliderComponent.ColliderTexture, this.ColliderComponent.ColliderRectangle, Color.White);
-                        Game.spriteBatch.Draw(this.ColliderComponent.CenterTexture, this.ColliderComponent.CenterPointRectangle, Color.White);
-                    }
                 }
 
                 if (SpriteComponent != null)
@@ -610,11 +607,20 @@ namespace MonoBlade
                 {
 
                     this.ColliderTexture = new Texture2D(ParrentObject.Game.GraphicsDevice, Convert.ToInt32(this.Dimensions.X), Convert.ToInt32(this.Dimensions.Y));
+                    Color[] data;
 
-                    Color[] data = new Color[Convert.ToInt32(this.Dimensions.X) * Convert.ToInt32(this.Dimensions.Y)];
-                    for (int i = 0; i < data.Length; ++i) data[i] = new Color(150, 0, 0, 150);
-                    ColliderTexture.SetData(data);
-
+                    if (!this.ParrentObject.Name.Contains("Ground"))
+                    {
+                        data = new Color[Convert.ToInt32(this.Dimensions.X) * Convert.ToInt32(this.Dimensions.Y)];
+                        for (int i = 0; i < data.Length; ++i) data[i] = new Color(0, 0, 0, 0);
+                        ColliderTexture.SetData(data);
+                    }
+                    else
+                    {
+                        data = new Color[Convert.ToInt32(this.Dimensions.X) * Convert.ToInt32(this.Dimensions.Y)];
+                        for (int i = 0; i < data.Length; ++i) data[i] = new Color(150, 0, 0, 150);
+                        ColliderTexture.SetData(data);
+                    }
                     this.CenterTexture = new Texture2D(ParrentObject.Game.GraphicsDevice, 5, 5);
 
                     Color[] data2 = new Color[5 * 5];

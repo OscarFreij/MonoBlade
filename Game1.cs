@@ -41,17 +41,16 @@ namespace MonoBlade
             // TODO: Add your initialization logic here
             GameObjects = new List<GameObject>();
 
-            GameObjects.Add(new Core.GameObject(NextItemId, "Player", this, 200, 50, true, new Vector2(18, 26), new Vector2(0, 0), false, false, 1, 100, 10, 20, 0));
-            NextItemId++;
-
-            GameObjects.Add(new Core.GameObject(NextItemId, "Enemy-1", this, 600, 100, false, new Vector2(26, 20), new Vector2(0, 0), false, true, 2, 10, 5, 10, 5));
-            NextItemId++;
-
             GameObjects.Add(new Core.GameObject(2, "Ground-RE1", this, Window.ClientBounds.Width / 2, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(600, 30), new Vector2(0, 0), false, false, 0, 0, 0, 0, 0));
             NextItemId++;
             GameObjects.Add(new Core.GameObject(3, "Ground-RE2", this, (Window.ClientBounds.Width / 2) - 315, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(30, 60), new Vector2(0, 0), false, false, 0, 0, 0, 0, 0));
             NextItemId++;
             GameObjects.Add(new Core.GameObject(4, "Ground-RE3", this, (Window.ClientBounds.Width / 2) + 315, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(30, 60), new Vector2(0, 0), false, false, 0, 0, 0, 0, 0));
+            NextItemId++;
+
+
+
+            GameObjects.Add(new Core.GameObject(NextItemId, "Player", this, 200, 50, true, new Vector2(18, 26), new Vector2(0, 0), false, false, 1, 100, 10, 20, 0));
             NextItemId++;
 
             random = new System.Random();
