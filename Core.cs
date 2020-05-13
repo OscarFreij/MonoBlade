@@ -71,10 +71,11 @@ namespace MonoBlade
             public Components.InputManeger InputManeger { get; private set; }
             public Components.PositionComponent PositionComponent { get; private set; }
             public Components.ColliderComponent ColliderComponent { get; private set; }
+            public Components.HealthComponent HealthComponent { get; private set; }
             public Components.AI AI { get; private set; }
             public GameTime GameTime { get; private set; }
 
-            public GameObject(int id, string name, Game1 game, float X, float Y, bool AcceptInput, Vector2 ColliderDimentions, Vector2 ColliderOffset, bool ColliderIsTrigger, bool HasAI , int Team, float MaxSpeed)
+            public GameObject(int id, string name, Game1 game, float X, float Y, bool AcceptInput, Vector2 ColliderDimentions, Vector2 ColliderOffset, bool ColliderIsTrigger, bool HasAI , int Team, float MaxSpeed, float Acceleration, float MaxHealth, float DamageOnTouch)
             {
                 Id = id;
 
@@ -86,17 +87,22 @@ namespace MonoBlade
 
                 InputManeger = new Components.InputManeger(this);
 
-                PositionComponent = new Components.PositionComponent(X, Y, AcceptInput, MaxSpeed, this);
+                PositionComponent = new Components.PositionComponent(X, Y, AcceptInput, MaxSpeed, Acceleration, this);
 
                 ColliderComponent = new Components.ColliderComponent(ColliderDimentions, ColliderOffset, ColliderIsTrigger, this);
 
                 SpriteComponent = new Components.SpriteComponent(this);
+                
+                if (MaxHealth > 0)
+                {
+                    HealthComponent = new Components.HealthComponent(MaxHealth, DamageOnTouch, this);
+                }
 
                 if (HasAI)
                 {
                     AI = new Components.AI(Team, this);
                 }
-
+                
             }
 
             public void Tick(GameTime GameTime)
@@ -111,6 +117,11 @@ namespace MonoBlade
                 this.InputManeger.Tick();
             
                 this.ColliderComponent.Tick();
+
+                if (this.HealthComponent != null)
+                {
+                    this.HealthComponent.Tick();
+                }
             }
 
             public void Draw()
@@ -140,6 +151,36 @@ namespace MonoBlade
          */
         public class Components
         {
+            public class HealthComponent
+            {
+                public GameObject ParrentObject { get; private set; }
+                public float Health { get; private set; }
+                public float MaxHealth { get; private set; }
+                public float DamageOnTouch { get; private set; }
+
+                public HealthComponent(float MaxHealth, float DamageOnTouch, GameObject ParrentObject)
+                {
+                    this.ParrentObject = ParrentObject;
+                    this.MaxHealth = MaxHealth;
+                    this.Health = this.MaxHealth;
+                    this.DamageOnTouch = DamageOnTouch;
+                }
+
+                public void DealDamage(float DamageValue)
+                {
+                    this.Health -= DamageValue*(float)this.ParrentObject.GameTime.ElapsedGameTime.TotalSeconds;
+                }
+
+                public void Tick()
+                {
+                    if (Health < 0)
+                    {
+                        // Kill and remove this item from list
+                        this.ParrentObject.Game.GameObjects.Remove(this.ParrentObject);
+                    }
+                }
+            }
+
             public class AI
             {
                 public GameObject Target { get; private set; }
@@ -167,7 +208,7 @@ namespace MonoBlade
 
                     foreach (GameObject PotentialTarget in this.ParrentObject.Game.GameObjects)
                     {
-                        if (this.ParrentObject.Team != PotentialTarget.Team && PotentialTarget.Team != 0)
+                        if (this.ParrentObject.Team != PotentialTarget.Team && PotentialTarget.Team != 0 && PotentialTarget.Team != 3)
                         {
                             double Delta = Math.Abs((this.ParrentObject.PositionComponent.Position.X - PotentialTarget.PositionComponent.Position.X));
                             if (Delta <= TargetDelta)
@@ -284,6 +325,23 @@ namespace MonoBlade
                         }
                         this.ParrentObject.PositionComponent.Tick(false);
                     }
+                    else if (this.ParrentObject.Team == 3)
+                    {
+                        if (!this.ParrentObject.ColliderComponent.IsTrigger)
+                        {
+                            foreach (var item in this.ParrentObject.Game.GameObjects)
+                            {
+                                if (item.Name != this.ParrentObject.Name)
+                                {
+                                    this.ParrentObject.ColliderComponent.CheckColision(item);
+                                }
+
+                            }
+                        }
+
+                        this.ParrentObject.PositionComponent.Tick(false);
+
+                    }
                     else
                     {
                         /*
@@ -311,7 +369,7 @@ namespace MonoBlade
 
                 public Vector2 CurrentAccelerationForce { get; private set; }
 
-                public PositionComponent(float X, float Y, bool AcceptInput, float MaxSpeed, GameObject ParrenObject)
+                public PositionComponent(float X, float Y, bool AcceptInput, float MaxSpeed, float AccelerationForce, GameObject ParrenObject)
                 {
                     this.ParrentObject = ParrenObject;
                     this.AcceptInput = AcceptInput;
@@ -323,9 +381,9 @@ namespace MonoBlade
                     BaseSpeed = 20.0f;
                     this.MaxSpeed = MaxSpeed;
 
-                    Acceleration = 10.0f;
-                    SprintAcceleration = 60.0f;
-                    StopForce = 600.0f;
+                    Acceleration = AccelerationForce;
+                    SprintAcceleration = Acceleration*3;
+                    StopForce = Acceleration*40;
 
                     SpeedMultiplyer = 1.0f;
                     Weight = 1.5f;
@@ -375,6 +433,14 @@ namespace MonoBlade
                         {
                             LocalForce.X = (this.SprintAcceleration * Axis.X) / this.Weight;
                         }
+
+                        if ((Speed.X > 0 && Axis.X == -1) || (Speed.X < 0 && Axis.X == 1))
+                        {
+                            Console.WriteLine("Moving in Oposite Direction of Disired Direction");
+                            LocalForce.X = (this.Acceleration * Axis.X) / this.Weight;
+                            LocalForce.X += -(this.StopForce * (Speed.X / MaxSpeed)) / Weight;
+                        }
+
                     }
                     else
                     {
@@ -440,12 +506,12 @@ namespace MonoBlade
                     Speed = new Vector2(Speed.X + CurrentAccelerationForce.X, Speed.Y + CurrentAccelerationForce.Y);
                     Console.WriteLine($"SPEED-X = {this.Speed.X} | SPEED-Y = {this.Speed.Y}");
 
-                    if (Math.Abs(Speed.X) < 0.1f)
+                    if (Math.Abs(Speed.X) < 0.01f)
                     {
                         Speed = new Vector2(0, Speed.Y);
                     }
 
-                    if (Math.Abs(Speed.Y) < 0.1f)
+                    if (Math.Abs(Speed.Y) < 0.01f)
                     {
                         Speed = new Vector2(Speed.X, 0);
                     }
@@ -546,8 +612,19 @@ namespace MonoBlade
 
                     if (this.SkinColliderRectangle.Intersects(gameObject_2.ColliderComponent.SkinColliderRectangle))
                     {
-                        Console.WriteLine($"{this.ParrentObject.Name} <=> DELTA-X = {deltaX} | DELTA-Y = {deltaY}");
-                        Console.WriteLine($"{this.ParrentObject.Name} <=> DELTA-X-Parsed = {deltaXP} | DELTA-Y-Parsed = {deltaYP}");
+                        if (this.ParrentObject.Team != 0 && gameObject_2.Team != 0)
+                        {
+                            Console.WriteLine($"Collition Betweene {this.ParrentObject.Name} and {gameObject_2.Name}"); 
+                        }
+                        
+                        if (this.ParrentObject.Team != 0 && gameObject_2.Team != 0 && this.ParrentObject.Team != gameObject_2.Team)
+                        {
+                            gameObject_2.HealthComponent.DealDamage(this.ParrentObject.HealthComponent.DamageOnTouch);
+                            this.ParrentObject.HealthComponent.DealDamage(gameObject_2.HealthComponent.DamageOnTouch);
+                        }
+
+                        //Console.WriteLine($"{this.ParrentObject.Name} <=> DELTA-X = {deltaX} | DELTA-Y = {deltaY}");
+                        //Console.WriteLine($"{this.ParrentObject.Name} <=> DELTA-X-Parsed = {deltaXP} | DELTA-Y-Parsed = {deltaYP}");
 
                         if (gameObject_2.Name.Contains("Ground"))
                         {

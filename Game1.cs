@@ -11,6 +11,7 @@ namespace MonoBlade
     /// </summary>
     public class Game1 : Game
     {
+        public int NextItemId = 0;
         public GraphicsDeviceManager graphics;
         public SpriteBatch spriteBatch;
 
@@ -19,6 +20,8 @@ namespace MonoBlade
         public Texture2D mouse;
 
         public Core.PhysicsEngine.Core PhysicsCore;
+
+        System.Random random;
         public Game1()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -38,13 +41,20 @@ namespace MonoBlade
             // TODO: Add your initialization logic here
             GameObjects = new List<GameObject>();
 
-            GameObjects.Add(new Core.GameObject(0, "Player", this, 200, 50, true, new Vector2(20, 30),new Vector2(0, 0), false, false,1, 100));
+            GameObjects.Add(new Core.GameObject(NextItemId, "Player", this, 200, 50, true, new Vector2(20, 30), new Vector2(0, 0), false, false, 1, 100, 10, 20, 0));
+            NextItemId++;
 
-            GameObjects.Add(new Core.GameObject(1, "Enemy-1", this, 600, 50, false, new Vector2(20, 30), new Vector2(0, 0), false, true,2, 10));
+            GameObjects.Add(new Core.GameObject(NextItemId, "Enemy-1", this, 600, 100, false, new Vector2(20, 30), new Vector2(0, 0), false, true, 2, 10, 5, 10, 5));
+            NextItemId++;
 
-            GameObjects.Add(new Core.GameObject(2, "Ground-RE1", this, Window.ClientBounds.Width / 2, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(600, 30), new Vector2(0, 0), false, false, 0, 0));
-            GameObjects.Add(new Core.GameObject(3, "Ground-RE1", this, (Window.ClientBounds.Width / 2) - 315, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(30, 60), new Vector2(0, 0), false, false, 0, 0));
-            GameObjects.Add(new Core.GameObject(4, "Ground-RE1", this, (Window.ClientBounds.Width / 2) + 315, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(30, 60), new Vector2(0, 0), false, false, 0, 0));
+            GameObjects.Add(new Core.GameObject(2, "Ground-RE1", this, Window.ClientBounds.Width / 2, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(600, 30), new Vector2(0, 0), false, false, 0, 0, 0, 0, 0));
+            NextItemId++;
+            GameObjects.Add(new Core.GameObject(3, "Ground-RE2", this, (Window.ClientBounds.Width / 2) - 315, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(30, 60), new Vector2(0, 0), false, false, 0, 0, 0, 0, 0));
+            NextItemId++;
+            GameObjects.Add(new Core.GameObject(4, "Ground-RE3", this, (Window.ClientBounds.Width / 2) + 315, Window.ClientBounds.Height - Window.ClientBounds.Height / 3, false, new Vector2(30, 60), new Vector2(0, 0), false, false, 0, 0, 0, 0, 0));
+            NextItemId++;
+
+            random = new System.Random();
 
             base.Initialize();
         }
@@ -82,12 +92,66 @@ namespace MonoBlade
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+            int EnemyCound = 0;
+
+            foreach (var GameObject in GameObjects)
+            {
+                if (GameObject.Name.Contains("Enemy"))
+                {
+                    EnemyCound++;
+                }
+            }
+
+
+            if (random.Next(1,100) == 1 && EnemyCound < 6)
+            {
+                GameObjects.Add(new Core.GameObject(NextItemId, "Enemy-" + NextItemId, this, 600, 100, false, new Vector2(20, 30), new Vector2(0, 0), false, true, 2, 10, 5, 10, 5));
+                NextItemId++;
+            }
+
+
+            int BombCount = 0;
+            foreach (var GameObject in GameObjects)
+            {
+                if (GameObject.Name.Contains("Bomb"))
+                {
+                    BombCount++;
+                }
+            }
+            try
+            {
+                GameObject PlayerObject = null;
+                foreach (var GameObject in GameObjects)
+                {
+                    if (GameObject.Name.Contains("Player"))
+                    {
+                        PlayerObject = GameObject;
+                        break;
+                    }
+                }
+
+                if (Keyboard.GetState().IsKeyDown(Keys.Space) && BombCount == 0 && !PlayerObject.ColliderComponent.IsOnGround)
+                {
+                    GameObjects.Add(new Core.GameObject(NextItemId, "Bomb-" + NextItemId, this, PlayerObject.PositionComponent.Position.X, PlayerObject.PositionComponent.Position.Y + PlayerObject.ColliderComponent.Dimensions.Y/2 + 15, false, new Vector2(10, 10), new Vector2(0, 0), false, false, 3, 10, 5, 1, 100));
+                }
+            }
+            catch
+            {
+
+            }
+            
+            
+
+
+
+
 
             // TODO: Add your update logic here
             for (int i = 0; i < GameObjects.Count; i++)
             {
                 GameObjects[i].Tick(gameTime);
             }
+
 
             base.Update(gameTime);
         }
