@@ -126,10 +126,7 @@ namespace MonoBlade
 
             public void Draw()
             {
-                if (SpriteComponent != null)
-                {
-                    Game.spriteBatch.Draw(this.SpriteComponent.Sprite, this.PositionComponent.Position - this.SpriteComponent.OriginPoint, Color.White);
-                }
+
 
                 if (ColliderComponent != null)
                 {
@@ -138,9 +135,18 @@ namespace MonoBlade
                     for (int i = 0; i < data.Length; ++i) data[i] = new Color(0, 280, 0, 40);
                     ColliderTexture.SetData(data);
 
-                    Game.spriteBatch.Draw(ColliderTexture, this.ColliderComponent.SkinColliderRectangle, Color.White);
-                    Game.spriteBatch.Draw(this.ColliderComponent.ColliderTexture, this.ColliderComponent.ColliderRectangle, Color.White);
-                    Game.spriteBatch.Draw(this.ColliderComponent.CenterTexture, this.ColliderComponent.CenterPointRectangle, Color.White);
+
+                    if (this.Name.Contains("Ground") || true)
+                    {
+                        Game.spriteBatch.Draw(ColliderTexture, this.ColliderComponent.SkinColliderRectangle, Color.White);
+                        Game.spriteBatch.Draw(this.ColliderComponent.ColliderTexture, this.ColliderComponent.ColliderRectangle, Color.White);
+                        Game.spriteBatch.Draw(this.ColliderComponent.CenterTexture, this.ColliderComponent.CenterPointRectangle, Color.White);
+                    }
+                }
+
+                if (SpriteComponent != null)
+                {
+                    Game.spriteBatch.Draw(this.SpriteComponent.Sprite, this.PositionComponent.Position - this.SpriteComponent.OriginPoint, Color.White);
                 }
             }
         }
